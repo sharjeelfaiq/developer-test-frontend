@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import ShowData from "./showData";
 
 const App = () => {
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [date, setDate] = React.useState("");
+  const [data, setData] = React.useState([]);
 
   const handleChange = (e, inputType) => {
     try {
@@ -17,6 +19,32 @@ const App = () => {
         setEmail(e.target.value);
       } else if (inputType === "date") {
         setDate(e.target.value);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      getData();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  const getData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/show-data");
+      const data = await res.json();
+
+      let infoArr = [];
+
+      if (data) {
+        data.forEach((info) => {
+          infoArr.push(info);
+        });
+        setData(infoArr);
       }
     } catch (error) {
       console.error(error);
@@ -76,6 +104,9 @@ const App = () => {
           Submit
         </Button>
       </Stack>
+      {data.length > 0 && data.map(info => (
+        <ShowData name={info.name} email={info.email} date={info.date} key={data.name} />
+      ))}
     </Box>
   );
 };
